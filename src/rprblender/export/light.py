@@ -143,6 +143,23 @@ def sync(rpr_context: RPRContext, obj: bpy.types.Object, instance_key=None):
         data = mesh.MeshData.init_from_shape_type(rpr.shape, light.size, light.size_y, segments=32)
         area = data.area * obj.scale[0] * obj.scale[1]
 
+        # Cycles portal light should be exported as a mesh instead
+        if light.cycles.is_portal:
+            rpr_mesh = rpr_context.create_mesh(
+                light_key,
+                data.vertices, data.normals, data.uvs,
+                data.vertex_indices, data.normal_indices, data.uv_indices,
+                data.num_face_vertices
+            )
+
+            rpr_mesh.set_name(light.name)
+            rpr_mesh.set_light_group_id(0)
+            rpr_mesh.set_portal_light(True)
+
+            rpr_mesh.set_transform(object.get_transform(obj))
+            rpr_context.scene.attach(rpr_mesh)
+            return
+
         rpr_light = rpr_context.create_area_light(
             light_key,
             data.vertices, data.normals, data.uvs,
