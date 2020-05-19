@@ -67,10 +67,14 @@ class RPR_LIGHT_PT_light(RPR_Panel):
                 main_col.prop(light, 'size')
 
             col = main_col.column(align=True)
-            col.prop(rpr_light, 'visible')
             row = col.row()
-            row.enabled = rpr_light.visible
+            row.enabled = not light.cycles.is_portal
+            row.prop(rpr_light, 'visible')
+            row = col.row()
+            row.enabled = rpr_light.visible and not light.cycles.is_portal
             row.prop(rpr_light, 'cast_shadows')
+            row = col.row()
+            row.prop(light.cycles, 'is_portal')
 
             row = col.row()
             row.active = context.scene.render.use_motion_blur
