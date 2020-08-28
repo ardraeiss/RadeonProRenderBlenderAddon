@@ -347,6 +347,24 @@ class NodeParser(BaseNodeParser):
         input_normal = super().get_input_normal(socket_key)
         return self.node_item(input_normal) if input_normal is not None else self.normal_node
 
+    def create_generated_uvs(self):
+        data = self.create_node(pyrpr.MATERIAL_NODE_INPUT_LOOKUP, {
+            pyrpr.MATERIAL_INPUT_VALUE: pyrpr.MATERIAL_NODE_LOOKUP_P_LOCAL,
+        })
+        if self.object:
+            # normalize over object bounding box
+            # get min and max of boinding box
+            min_bounds = tuple(min(p[i] for p in self.object.bound_box) for i in range(3))
+            max_bounds = tuple(max(p[i] for p in self.object.bound_box) for i in range(3))
+
+            size = self.node_item((max_bounds[0] - min_bounds[0],
+                                   max_bounds[1] - min_bounds[1],
+                                   max_bounds[2] - min_bounds[2]))
+            min_bounds = self.node_item(min_bounds)
+
+            data = (data - min_bounds) / size
+        return data
+
 
 
 class RuleNodeParser(NodeParser):
