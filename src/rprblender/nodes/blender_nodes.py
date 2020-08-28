@@ -602,9 +602,7 @@ class ShaderNodeTexChecker(NodeParser):
 
         vector = self.get_input_link('Vector')
         if not vector:
-            vector = self.create_node(pyrpr.MATERIAL_NODE_INPUT_LOOKUP, {
-                pyrpr.MATERIAL_INPUT_VALUE: pyrpr.MATERIAL_NODE_LOOKUP_UV
-            })
+            vector = self.create_generated_uvs()
 
         checker = self.create_node(pyrpr.MATERIAL_NODE_CHECKER_TEXTURE, {
             pyrpr.MATERIAL_INPUT_UV: scale * vector
@@ -1509,9 +1507,7 @@ class ShaderNodeTexGradient(NodeParser):
         ''' create a buffer from ramp data and sample that in nodes if connected '''
         vec = self.get_input_link('Vector')
         if not vec:
-            vec = self.create_node(pyrpr.MATERIAL_NODE_INPUT_LOOKUP, {
-                pyrpr.MATERIAL_INPUT_VALUE: pyrpr.MATERIAL_NODE_LOOKUP_P
-            })
+            vec = self.create_generated_uvs()
 
         gradiant_type = self.node.gradient_type
         x = vec.get_channel(0)
@@ -1645,9 +1641,7 @@ class ShaderNodeTexNoise(NodeParser):
 
         mapping = self.get_input_link('Vector')
         if not mapping:  # use default mapping if no external mapping nodes attached
-            mapping = self.create_node(pyrpr.MATERIAL_NODE_INPUT_LOOKUP, {
-                pyrpr.MATERIAL_INPUT_VALUE: pyrpr.MATERIAL_NODE_LOOKUP_UV
-            })
+            mapping = self.create_generated_uvs()
 
         return self.create_node(pyrpr.MATERIAL_NODE_NOISE2D_TEXTURE, {
             pyrpr.MATERIAL_INPUT_UV: scale * mapping
