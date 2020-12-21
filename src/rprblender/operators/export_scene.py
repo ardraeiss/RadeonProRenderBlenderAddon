@@ -56,7 +56,15 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
         name="Export Animation"
     )
 
+    animation_export_mode: EnumProperty(
+        items=(('SEPARATE', 'Frame files', 'Export each animation frame as a separate rpr file'),
+               ('SINGLE', 'Single file', 'Export animation as a single rpr file'),),
+        default='SINGLE',
+        name="Animation export mode"
+    )
+
     export_as_single_file: BoolProperty(
+        description="Pack images to the rpr file",
         default=False,
         name="Export Single File"
     )
@@ -88,9 +96,15 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
 
     def draw(self, context):
         self.layout.prop(self, 'export_animation')
+
+        row = self.layout.row()
+        row.enabled = self.export_animation
+        row.prop(self, 'animation_export_mode', expand=True)
         row = self.layout.row(align=True)
+        row.enabled = self.export_animation
         row.prop(self, 'start_frame')
         row.prop(self, 'end_frame')
+
         self.layout.prop(self, 'export_as_single_file')
         self.layout.prop(self, 'compression')
         self.layout.prop(self, 'use_image_cache')
