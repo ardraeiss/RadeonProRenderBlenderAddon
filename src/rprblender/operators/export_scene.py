@@ -64,9 +64,10 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
     )
 
     export_as_single_file: BoolProperty(
-        description="Pack images to the rpr file",
+        description="Pack images to the rpr file"
+                    "Images are put next to rpr file if not selected",
         default=False,
-        name="Export Single File"
+        name="Put images to rpr file"
     )
 
     use_image_cache: BoolProperty(
