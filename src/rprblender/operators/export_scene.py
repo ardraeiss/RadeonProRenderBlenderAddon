@@ -137,21 +137,13 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
             flags |= 1 << 6
 
         if self.export_animation and self.start_frame <= self.end_frame:
-            orig_frame = scene.frame_current
-            begin, end = self.filepath.rsplit('.', 1)
-
             log.info(f"Starting scene '{scene.name}' frames {self.start_frame}:{self.end_frame} RPR export")
             time_started = time.time()
 
-            for i in range(self.start_frame, self.end_frame + 1):
-                filepath_frame = "{}.{:04}.{}".format(begin, i, end)
-                filepath_json = os.path.splitext(filepath_frame)[0] + '.json'
-                scene.frame_set(i)
-
-                self.export_scene_to_file(context, scene, filepath_frame, filepath_json, flags)
-                log.info(f"Finished frame {i} export to '{filepath_frame}'")
-
-            scene.frame_set(orig_frame)
+            if self.animation_export_mode == 'SEPARATE':
+                self.export_separate_animation_frames(context, scene, flags)
+            else:
+                return {'CANCELED'}
 
         else:
             log.info(f"Starting scene '{scene.name}' RPR export to '{self.filepath}'")
@@ -163,6 +155,21 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
         log.info(f"Finished RPR export in {time.time() - time_started} s")
 
         return {'FINISHED'}
+
+    def export_separate_animation_frames(self, context, scene, flags):
+        """ Export each animation frame as a rpr file"""
+        orig_frame = scene.frame_current
+        begin, end = self.filepath.rsplit('.', 1)
+
+        for i in range(self.start_frame, self.end_frame + 1):
+            filepath_frame = "{}.{:04}.{}".format(begin, i, end)
+            filepath_json = os.path.splitext(filepath_frame)[0] + '.json'
+            scene.frame_set(i)
+
+            self.export_scene_to_file(context, scene, filepath_frame, filepath_json, flags)
+            log.info(f"Finished frame {i} export to '{filepath_frame}'")
+
+        scene.frame_set(orig_frame)
 
     def export_scene_to_file(self, context, scene, filepath, filepath_json, flags):
         if scene.rpr.render_quality == 'FULL':  # Export Legacy mode using RPR1
