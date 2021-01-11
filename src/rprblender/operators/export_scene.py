@@ -99,8 +99,12 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
         self.layout.prop(self, 'export_animation')
 
         row = self.layout.row()
-        row.enabled = self.export_animation
-        row.prop(self, 'animation_export_mode', expand=True)
+        if context.scene.rpr.render_quality == 'FULL':
+            row.label(text="Separate frames only")
+        else:
+            row.enabled = self.export_animation
+            row.prop(self, 'animation_export_mode', expand=True)
+
         row = self.layout.row(align=True)
         row.enabled = self.export_animation
         row.prop(self, 'start_frame')
