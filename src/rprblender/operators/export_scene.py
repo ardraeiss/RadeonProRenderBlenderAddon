@@ -21,7 +21,7 @@ from bpy.props import StringProperty, BoolProperty, IntProperty, EnumProperty
 
 import bpy
 from bpy_extras.io_utils import ExportHelper
-from rprblender.engine.export_engine import ExportEngine, ExportEngine2
+from rprblender.engine.export_engine import ExportEngine, ExportEngine2, ExportEngineAnimated
 import os.path
 import json
 from rprblender.utils.user_settings import get_user_settings
@@ -145,10 +145,11 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
             log.info(f"Starting scene '{scene.name}' frames {self.start_frame}:{self.end_frame} RPR export")
             time_started = time.time()
 
-            if self.animation_export_mode == 'SEPARATE':
+            if self.animation_export_mode == 'SEPARATE' or scene.rpr.render_quality == 'FULL':
                 self.export_separate_animation_frames(context, scene, flags)
             else:
-                return {'CANCELED'}
+                filepath_json = os.path.splitext(self.filepath)[0] + '.json'
+                self.export_scene_to_file(context, scene, self.filepath, filepath_json, flags)
 
         else:
             log.info(f"Starting scene '{scene.name}' RPR export to '{self.filepath}'")
@@ -185,7 +186,10 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
                 'Linux': "libRadeonProRender64.so",
             }[OS]
         else:  # Other quality modes export using RPR2
-            exporter = ExportEngine2()
+            if self.export_animation and self.start_frame <= self.end_frame:
+                exporter = ExportEngineAnimated()
+            else:
+                exporter = ExportEngine2()
             engine_lib_name = {
                 'Windows': "Northstar64.dll",
                 'Darwin': "libNorthstar64.dylib",
