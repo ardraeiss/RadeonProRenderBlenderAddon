@@ -38,6 +38,22 @@ log = Log(tag='operators.export_scene')
 CONTOUR_AOVS = (pyrpr.AOV_GEOMETRIC_NORMAL, pyrpr.AOV_MATERIAL_ID, pyrpr.AOV_OBJECT_ID)
 
 
+#    m_runtimeMoveTypeTranslation = RPRS_ANIMATION_MOVEMENTTYPE_TRANSLATION;
+#    m_runtimeMoveTypeRotation = RPRS_ANIMATION_MOVEMENTTYPE_ROTATION;
+#    m_runtimeMoveTypeScale = RPRS_ANIMATION_MOVEMENTTYPE_SCALE;
+#
+#    m_pFunc_AddExtraCamera = rprsAddExtraCamera;
+#    m_pFunc_AddExtraShapeParameter = rprsAddExtraShapeParameter;
+#    m_pFunc_AssignLightToGroup = rprsAssignLightToGroup;
+#
+#    m_pFunc_AssignCameraToGroup = rprsAssignCameraToGroup;
+#    m_pFunc_AssignShapeToGroup = rprsAssignShapeToGroup;
+#    m_pFunc_SetTransformGroup = rprsSetTransformGroup;
+#    m_pFunc_AssignParentGroupToGroup = rprsAssignParentGroupToGroup;
+#
+#    m_pFunc_AddAnimationTrackToRPR = &AnimationExporter::AddAnimationToRPRS;
+
+
 class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
     bl_idname = "rpr.export_scene_rpr"
     bl_label = "RPR (.rpr)"
