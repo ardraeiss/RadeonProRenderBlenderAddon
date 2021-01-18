@@ -202,7 +202,9 @@ class RPR_EXPORT_OP_export_rpr_scene(RPR_Operator, ExportHelper):
                 'Linux': "libRadeonProRender64.so",
             }[OS]
         else:  # Other quality modes export using RPR2
-            if self.export_animation and self.start_frame <= self.end_frame:
+            if self.export_animation \
+                    and self.start_frame < self.end_frame \
+                    and self.animation_export_mode == 'SEPARATE':
                 exporter = ExportEngineAnimated()
             else:
                 exporter = ExportEngine2()
