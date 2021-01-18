@@ -175,10 +175,11 @@ class ExportEngineAnimated(ExportEngine2):
 
         camera_group_name, camera_parent_group_name = self.get_group_names(camera_obj)
         self.assing_group_to_object(rpr_camera, camera_group_name)
-#        if camera_obj.parent:
-#            pyrpr_load_store.rprs_assign_parent_group_to_group(camera_group_name, camera_parent_group_name)
+        if camera_obj.parent:
+            pyrpr_load_store.rprs_assign_parent_group_to_group(camera_group_name, camera_parent_group_name)
 
-#        pyrpr_load_store.rprs_set_transform_to_group(camera_group_name, self.get_local_matrix(camera_obj))
+        transform, transform_data = self.group_transform_from_matrix(self.get_local_matrix(camera_obj))
+        pyrpr_load_store.rprs_set_transform_to_group(camera_group_name, transform_data)
 
         camera_data = camera.CameraData.init_from_camera(camera_obj.data, camera_obj.matrix_world,
                                                          self.rpr_context.width / self.rpr_context.height)
@@ -339,7 +340,8 @@ class ExportEngineAnimated(ExportEngine2):
             if obj.parent:
                 pyrpr_load_store.rprs_assign_parent_group_to_group(group_name, parent_group_name)
 
-            pyrpr_load_store.rprs_set_transform_to_group(group_name, self.get_local_matrix(obj))
+            transform, transform_data = self.group_transform_from_matrix(self.get_local_matrix(obj))
+            pyrpr_load_store.rprs_set_transform_to_group(group_name, transform_data)
 
 
     def sync_animated_objects_279(self, depsgraph, with_camera):

@@ -190,7 +190,7 @@ def rprs_assign_parent_group_to_group(group_name: str, parent_name: str):
 
 
 def rprs_set_transform_to_group(group_name: str, transform):
-    return lib.rprsSetTransformGroup(pyrpr.encode(group_name), ffi.cast('float*', transform.ctypes.data))
+    return lib.rprsSetTransformGroup(pyrpr.encode(group_name), transform)
 
 
 def rprs_apply_animation(animation: Animation):
