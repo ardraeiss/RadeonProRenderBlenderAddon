@@ -37,26 +37,29 @@ def sync(rpr_context, obj: bpy.types.Object, **kwargs):
 
     log("sync", obj, obj.type)
 
+    rpr_obj = None
+
     if obj.type == 'MESH':
         if obj.mode == 'OBJECT':
             # if in edit mode use to_mesh
-            mesh.sync(rpr_context, obj, **kwargs)
+            rpr_obj = mesh.sync(rpr_context, obj, **kwargs)
         else:
-            to_mesh.sync(rpr_context, obj, **kwargs)
+            rpr_obj = to_mesh.sync(rpr_context, obj, **kwargs)
 
     elif obj.type == 'LIGHT':
-        light.sync(rpr_context, obj)
+        rpr_obj = light.sync(rpr_context, obj)
 
     elif obj.type == 'CAMERA':
-        camera.sync(rpr_context, obj)
+        rpr_obj = camera.sync(rpr_context, obj)
 
     elif obj.type in ('CURVE', 'FONT', 'SURFACE', 'META'):
-        to_mesh.sync(rpr_context, obj, **kwargs)
+        rpr_obj = to_mesh.sync(rpr_context, obj, **kwargs)
 
     elif obj.type == 'VOLUME':
-        openvdb.sync(rpr_context, obj, **kwargs)
+        rpr_obj = openvdb.sync(rpr_context, obj, **kwargs)
 
     elif obj.type == 'EMPTY':
+        # empty has no visible form in render, usually used for animation purposes
         pass
 
     else:
@@ -70,6 +73,8 @@ def sync(rpr_context, obj: bpy.types.Object, **kwargs):
         #       after motion blur, otherwise prev_location of particle will be (0, 0, 0)
         if rpr_context.engine_type != RenderEngine.TYPE:
             particle.sync(rpr_context, obj)
+
+    return rpr_obj
 
 
 def sync_update(rpr_context, obj: bpy.types.Object, is_updated_geometry, is_updated_transform, **kwargs):

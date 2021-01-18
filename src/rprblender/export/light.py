@@ -180,6 +180,8 @@ def sync(rpr_context: RPRContext, obj: bpy.types.Object, instance_key=None):
 
     rpr_context.scene.attach(rpr_light)
 
+    return rpr_light
+
 
 def sync_update(rpr_context: RPRContext, obj: bpy.types.Object, is_updated_geometry, is_updated_transform) -> bool:
     """ Update existing light from obj.data: bpy.types.Light or create a new light """

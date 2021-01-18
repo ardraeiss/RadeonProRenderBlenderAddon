@@ -336,6 +336,8 @@ def sync(rpr_context: RPRContext, obj: bpy.types.Object, **kwargs):
 
     sync_visibility(rpr_context, obj, rpr_shape, indirect_only=indirect_only, use_contour=use_contour)
 
+    return rpr_shape
+
 
 def sync_update(rpr_context: RPRContext, obj: bpy.types.Object, is_updated_geometry, is_updated_transform, **kwargs):
     """ Update existing mesh from obj.data: bpy.types.Mesh or create a new mesh """

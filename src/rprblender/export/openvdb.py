@@ -183,6 +183,8 @@ def sync(rpr_context, obj: bpy.types.Object, **kwargs):
     rpr_context.scene.attach(rpr_volume)
     rpr_shape.set_hetero_volume(rpr_volume)
 
+    return rpr_shape
+
 
 def sync_update(rpr_context, obj: bpy.types.Object, is_updated_geometry, is_updated_transform, **kwargs):
     if not (IS_WIN or IS_MAC):

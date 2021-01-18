@@ -237,3 +237,5 @@ def sync(rpr_context: RPRContext, obj: bpy.types.Object):
 
     # set scene's camera
     rpr_context.scene.set_camera(rpr_camera)
+
+    return rpr_camera

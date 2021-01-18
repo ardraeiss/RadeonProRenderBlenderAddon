@@ -35,10 +35,9 @@ def sync(rpr_context, obj: bpy.types.Object, **kwargs):
         log("sync", obj, new_mesh)
 
         if new_mesh:
-            mesh.sync(rpr_context, obj, mesh=new_mesh, **kwargs)
-            return True
+            return mesh.sync(rpr_context, obj, mesh=new_mesh, **kwargs)
 
-        return False
+        return None
 
     finally:
         # it's important to clear created mesh
