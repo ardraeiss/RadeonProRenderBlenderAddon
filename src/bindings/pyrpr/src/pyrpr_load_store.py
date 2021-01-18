@@ -13,7 +13,9 @@
 # limitations under the License.
 #********************************************************************
 import dataclasses
+import numpy as np
 import platform
+
 from _pyrpr_load_store import ffi
 import pyrpr
 
@@ -74,6 +76,20 @@ struct __rprs_animation
 """
 
 
+MOVEMENT_CONSTANTS = {
+    'translation': 1,
+    'rotation': 2,
+    'scale': 3,
+}
+
+
+DATA_SIZE = {  # number of floats used to store value
+    'translation': 3,
+    'rotation': 4,
+    'scale': 3,
+}
+
+
 class Object:
     core_type_name = 'void*'
 
@@ -104,10 +120,10 @@ class ArrayObject:
 class Animation:
     struct_size: int
     group_name: str
-    movement_type = None
     interpolation_type: int
     time_keys_number: int
     transform_keys_number: int
+    movement_type: str = ''
     time_keys: ArrayObject = None
     transform_values: ArrayObject = None
 
@@ -119,8 +135,37 @@ class Animation:
         self.transform_values = data
         self.transform_keys_number = len(data)
 
-    def get_cffi_representation(self):
-        raise NotImplementedError
+        # pack data to CFFI representation
+        assert self.time_keys_number == self.transform_keys_number, \
+            f"Number of keyframe keys {self.time_keys_number} is not equal to number of values {self.transform_keys_number}!"
+
+        self.group_name_data = ffi.new('char[]', pyrpr.encode(self.group_name))
+
+        self.values_bytes_number = len(self.transform_keys_number) * DATA_SIZE[self.movement_type]
+
+        self.interpolation_type = 0
+        self.movement_type = MOVEMENT_CONSTANTS[self.movement_type]
+
+        keytimes_in_seconds = [frame/bpy.context.scene.render.fps for frame in self.time_keys]
+
+        self.keys = np.ascontiguousarray(keytimes_in_seconds[:], dtype=np.float32)
+        self.keys_array = ffi.cast("float*", self.keys.ctypes.data)
+
+        # turn list of tuples to flat list
+        self.values = np.ascontiguousarray(self.transform_values[:], dtype=np.float32).reshape(self.values_bytes_number)
+        self.values_array = ffi.cast("float*", self.values.ctypes.data)
+
+        self.packed_data = ffi.new("rprs_animation*")
+        self.struct_size = ffi.sizeof("rprs_animation")
+
+        self.packed_data.structSize = self.struct_size
+        self.packed_data.groupName = self.group_name_data
+        self.packed_data.movementType = self.movement_type
+        self.packed_data.interpolationType = self.interpolation_type
+        self.packed_data.nbTimeKeys = self.time_keys_number
+        self.packed_data.nbTransformValues = self.time_keys_number
+        self.packed_data.timeKeys = self.keys_array
+        self.packed_data.transformValues = self.values_array
 
 
 def rprs_add_extra_camera(rpr_camera):
