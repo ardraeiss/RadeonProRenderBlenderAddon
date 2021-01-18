@@ -166,6 +166,7 @@ class ExportEngineAnimated(ExportEngine2):
             scene.frame_set(orig_frame)
 
         self.sync_objects(depsgraph, with_camera=False)
+        self.sync_instances(depsgraph)
 
         # EXPORT CAMERA
         camera_key = object.key(scene.camera)  # current camera key
@@ -350,6 +351,31 @@ class ExportEngineAnimated(ExportEngine2):
             transform, transform_data = self.group_transform_from_matrix(self.get_local_matrix(obj))
             pyrpr_load_store.rprs_set_transform_to_group(group_name, transform_data)
             self.apply_object_animation(obj.name, group_name)
+
+    def sync_instances(self, depsgraph):
+        identity = np.identity(4, dtype=np.float32)
+        for inst in self.depsgraph_instances(depsgraph):
+            log.info(f"syncing instance {inst}")
+            indirect_only = inst.parent.original.indirect_only_get(view_layer=depsgraph.view_layer)
+            rpr_obj = instance.sync(self.rpr_context, inst, indirect_only=indirect_only)
+            log.info(f"rpr_obj {rpr_obj}")
+            if not rpr_obj:
+                continue
+
+            group_name = f"{inst.object.name}:{inst.random_id}"
+            rpr_obj.set_name(group_name)
+            rpr_obj.set_transform(identity)
+
+            log.info(f"group_name {group_name}")
+            self.assing_group_to_object(rpr_obj, group_name)
+
+            if inst.obj.parent:
+                _, parent_group_name = self.get_group_names(inst.obj)
+                log.info(f"parent_group_name {parent_group_name}")
+                pyrpr_load_store.rprs_assign_parent_group_to_group(group_name, parent_group_name)
+
+            transform, transform_data = self.group_transform_from_matrix(inst.matrix_world)
+            pyrpr_load_store.rprs_set_transform_to_group(group_name, transform_data)
 
 
     def sync_animated_objects_279(self, depsgraph, with_camera):
