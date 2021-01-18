@@ -15,15 +15,40 @@
 from cffi import FFI
 from pathlib import Path
 
+
 ffi = FFI()
 
 ffi.set_source("_pyrpr_load_store", None)
 
+# only the export-related parts of .sdk/rpr/inc/RprLoadStore.h, adjusted to base types
 ffi.cdef("""
+    typedef struct __rprs_animation
+    {
+        int structSize;
+        char * groupName;
+        unsigned int movementType;
+        unsigned int interpolationType;
+        unsigned int nbTimeKeys;
+        unsigned int nbTransformValues;
+        float * timeKeys;
+        float * transformValues;
+    } rprs_animation;
+
+    int rprsAssignShapeToGroup(void * shape, char const * groupName);
+    int rprsAssignLightToGroup(void * light, char const * groupName);
+    int rprsAssignCameraToGroup(void * camera, char const * groupName);
+
+    int rprsAssignParentGroupToGroup(char const * groupChild, char const * groupParent);
+    int rprsSetTransformGroup(char const * groupChild, float const * matrixComponents);
+
+    int rprsAddAnimation(rprs_animation const * anim);
+
     int rprsExport(char const * rprsFileName, void * context, void * scene,
                     int extraCustomParam_int_number, char const * * extraCustomParam_int_names,
                     int const * extraCustomParam_int_values, int extraCustomParam_float_number,
-                    char const * * extraCustomParam_float_names, float const * extraCustomParam_float_values, unsigned int exportFlags);""")
+                    char const * * extraCustomParam_float_names, float const * extraCustomParam_float_values, unsigned int exportFlags);
+""")
+
 
 if __name__ == "__main__":
 
