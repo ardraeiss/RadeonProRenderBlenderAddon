@@ -135,6 +135,8 @@ class ExportEngineAnimated(ExportEngine2):
     def __init__(self):
         super().__init__()
         self.global_matrix = np.identity
+        self.keyframes = {}
+        self.animation_data = {}
 
     def sync(self, context):
         log('Start sync')
@@ -156,14 +158,14 @@ class ExportEngineAnimated(ExportEngine2):
         # collect animation data
         orig_frame = scene.frame_current
         try:
-            keyframes = self.collect_keyframes(scene)
-            animation_data = self.collect_animation_data_by_keyframes(context, keyframes)
-            log.info(f"keyframes:\n{keyframes}")
-            log.info(f"animation_data:\n{animation_data}")
+            self.keyframes = self.collect_keyframes(scene)
+            self.animation_data = self.collect_animation_data_by_keyframes(context, self.keyframes)
+            log.info(f"keyframes:\n{self.keyframes}")
+            log.info(f"animation_data:\n{self.animation_data}")
         finally:
             scene.frame_set(orig_frame)
 
-        self.sync_animated_objects(depsgraph, with_camera=False)
+        self.sync_objects(depsgraph, with_camera=False)
 
         # EXPORT CAMERA
         camera_key = object.key(scene.camera)  # current camera key
@@ -180,6 +182,7 @@ class ExportEngineAnimated(ExportEngine2):
 
         transform, transform_data = self.group_transform_from_matrix(self.get_local_matrix(camera_obj))
         pyrpr_load_store.rprs_set_transform_to_group(camera_group_name, transform_data)
+        self.apply_object_animation(camera_obj.name, camera_group_name)
 
         camera_data = camera.CameraData.init_from_camera(camera_obj.data, camera_obj.matrix_world,
                                                          self.rpr_context.width / self.rpr_context.height)
@@ -310,24 +313,27 @@ class ExportEngineAnimated(ExportEngine2):
             pyrpr_load_store.rprs_assign_camera_to_group(rpr_obj, group_name)
             # pyrpr_load_store.rprs_assign_shape_to_group(rpr_obj, group_name)
 
-    @staticmethod
-    def apply_object_animation(keyframes, animation_data, object_name, group_name):
+    def apply_object_animation(self, object_name, group_name):
         """ Apply object_name object animation data to group_name """
-        data = animation_data.get(object_name, None)
+        log.info(f"object {object_name} animation")
+        data = self.animation_data.get(object_name, None)
         if not data:
             return
 
-        keys = keyframes.get(object_name)
+        keys = self.keyframes.get(object_name)
         for category in ('translation', 'rotation', 'scale'):
             animation = pyrpr_load_store.Animation(group_name, category, keys, data[category])
+            log.info(f"object {object_name} animation {category}:\n\t{animation}")
 
-            pyrpr_load_store.rprs_apply_animation(animation)
+            pyrpr_load_store.rprs_add_animation(animation.packed_data)
 
-    def sync_animated_objects(self, depsgraph, with_camera):
+    def sync_objects(self, depsgraph, with_camera):
         identity = np.identity(4, dtype=np.float32)
         for obj in self.depsgraph_objects(depsgraph, with_camera=with_camera):
+            log.info(f"syncing object {obj}")
             indirect_only = obj.original.indirect_only_get(view_layer=depsgraph.view_layer)
             rpr_obj = object.sync(self.rpr_context, obj, indirect_only=indirect_only)
+            log.info(f"rpr_obj {rpr_obj}")
             if not rpr_obj:
                 continue
 
@@ -335,6 +341,7 @@ class ExportEngineAnimated(ExportEngine2):
             rpr_obj.set_transform(identity)
 
             group_name, parent_group_name = self.get_group_names(obj)
+            log.info(f"group_name {group_name}; parent_group_name {parent_group_name}")
 
             self.assing_group_to_object(rpr_obj, group_name)
             if obj.parent:
@@ -342,6 +349,7 @@ class ExportEngineAnimated(ExportEngine2):
 
             transform, transform_data = self.group_transform_from_matrix(self.get_local_matrix(obj))
             pyrpr_load_store.rprs_set_transform_to_group(group_name, transform_data)
+            self.apply_object_animation(obj.name, group_name)
 
 
     def sync_animated_objects_279(self, depsgraph, with_camera):

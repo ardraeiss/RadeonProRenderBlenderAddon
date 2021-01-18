@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #********************************************************************
+import bpy
+
 import dataclasses
 import numpy as np
 import platform
@@ -141,10 +143,10 @@ class Animation:
 
         self.group_name_data = ffi.new('char[]', pyrpr.encode(self.group_name))
 
-        self.values_bytes_number = len(self.transform_keys_number) * DATA_SIZE[self.movement_type]
+        self.values_bytes_number = self.transform_keys_number * DATA_SIZE[self.movement_type]
 
         self.interpolation_type = 0
-        self.movement_type = MOVEMENT_CONSTANTS[self.movement_type]
+        self.movement_type = MOVEMENT_CONSTANTS[category]
 
         keytimes_in_seconds = [frame/bpy.context.scene.render.fps for frame in self.time_keys]
 
@@ -193,9 +195,10 @@ def rprs_set_transform_to_group(group_name: str, transform):
     return lib.rprsSetTransformGroup(pyrpr.encode(group_name), transform)
 
 
-def rprs_apply_animation(animation: Animation):
+def rprs_add_animation(animation: Animation):
     # ffi_representation = animation.get_cffi_representation()
-    raise NotImplementedError
+    return lib.rprsAddAnimation(animation)
+    # raise NotImplementedError
 
 
 def export(name, context, scene, flags):
