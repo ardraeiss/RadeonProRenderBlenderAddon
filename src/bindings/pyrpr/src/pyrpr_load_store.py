@@ -78,10 +78,10 @@ struct __rprs_animation
 """
 
 
-MOVEMENT_CONSTANTS = {
-    'translation': 1,
-    'rotation': 2,
-    'scale': 3,
+MOVEMENT_CONSTANTS = {  # animation track ID
+    'translation': 1,  # RPRS_ANIMATION_MOVEMENTTYPE_TRANSLATION
+    'rotation': 2,  # RPRS_ANIMATION_MOVEMENTTYPE_ROTATION
+    'scale': 3,  # RPRS_ANIMATION_MOVEMENTTYPE_SCALE
 }
 
 
@@ -125,7 +125,7 @@ class Animation:
     interpolation_type: int
     time_keys_number: int
     transform_keys_number: int
-    movement_type: str = ''
+    movement_type: int = 1
     time_keys: ArrayObject = None
     transform_values: ArrayObject = None
 

@@ -22,6 +22,10 @@ ffi.set_source("_pyrpr_load_store", None)
 
 # only the export-related parts of .sdk/rpr/inc/RprLoadStore.h, adjusted to base types
 ffi.cdef("""
+    #define RPRS_ANIMATION_MOVEMENTTYPE_TRANSLATION 0x1
+    #define RPRS_ANIMATION_MOVEMENTTYPE_ROTATION 0x2
+    #define RPRS_ANIMATION_MOVEMENTTYPE_SCALE 0x3
+
     typedef struct __rprs_animation
     {
         int structSize;
