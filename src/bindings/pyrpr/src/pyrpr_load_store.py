@@ -171,8 +171,7 @@ class Animation:
 
 
 def rprs_add_extra_camera(rpr_camera):
-    # return lib.rprsAddExtraCamera(rpr_camera._get_handle())
-    raise NotImplementedError
+    return lib.rprsAddExtraCamera(rpr_camera._get_handle())
 
 
 def rprs_assign_shape_to_group(shape: pyrpr.Shape, group_name: str):
@@ -196,9 +195,7 @@ def rprs_set_transform_to_group(group_name: str, transform):
 
 
 def rprs_add_animation(animation: Animation):
-    # ffi_representation = animation.get_cffi_representation()
     return lib.rprsAddAnimation(animation)
-    # raise NotImplementedError
 
 
 def export(name, context, scene, flags):
