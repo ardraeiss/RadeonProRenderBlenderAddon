@@ -457,6 +457,7 @@ class ViewportEngine(Engine):
         """
 
         try:
+            time.sleep(0.1)  # give Blender time to fully transfer depsgraph data to thread to prevent access violation
             self._do_sync(depsgraph)
             self._do_render()
 
